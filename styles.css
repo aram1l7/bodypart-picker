@@ -1,0 +1,45 @@
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+main {
+  display: grid;
+  place-items: center;
+
+  height: 105vh;
+}
+
+#body-section {
+  display: grid;
+  grid-template-columns: 0.5fr 0.5fr; /* Create two equal-width columns */
+  justify-content: space-between; /* Center horizontally */
+}
+
+.svg {
+  height: 75vh;
+}
+
+@media only screen and (max-width: 1200px) {
+  .svg {
+    height: 55vh;
+  }
+
+  #wrapper object {
+    transform: scale(1.3);
+  }
+
+  main {
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    right: 50%;
+    transform: translate(50%, -50%);
+  }
+}
+
+.hidden {
+  display: none;
+}

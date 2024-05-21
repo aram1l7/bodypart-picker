@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>SVG Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <main>
+      <div id="wrapper">
+        <object
+          id="svg-front"
+          class="svg"
+          data="./assets/whole-body-front.svg"
+          type="image/svg+xml"
+        ></object>
+
+        <object
+          id="svg-back"
+          class="svg hidden"
+          data="./assets/whole-body-back.svg"
+          type="image/svg+xml"
+        ></object>
+      </div>
+      <button id="switch-btn">Switch</button>
+    </main>
+    <script src="./scripts.js"></script>
+  </body>
+</html>
