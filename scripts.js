@@ -1,5 +1,22 @@
 window.onload = addStyleToSvg;
 
+const selectableBodyParts = [
+  "chin",
+  "eye-left",
+  "eye-right",
+  "ear-left",
+  "ear-right",
+  "nose",
+  "tongue",
+  "neck",
+  "frontal-scalp-region",
+  "cheek-left",
+  "cheek-right",
+  "forehead",
+  "temple-region-right",
+  "temple-region-left",
+];
+
 if (!window.webkit) {
   window.webkit = {
     messageHandlers: {
@@ -117,61 +134,111 @@ function addStyleToSvg() {
 
 function addStyleFor(svgFilePrefix) {
   let svgObject = document.getElementById(svgFilePrefix);
-  let svgDocument = svgObject?.contentDocument;
 
-  console.log(svgDocument, "doc");
+  if (!svgObject) {
+    console.error("SVG object not found with id:", svgFilePrefix);
+    return;
+  }
 
-  // Now you can manipulate the SVG elements within svgDocument
-  let svgElements = svgDocument?.getElementsByClassName("hover") || [];
+  console.log("Initial SVG object found:", svgObject);
 
-  for (let i = 0; i < svgElements.length; i++) {
-    const svgElement = svgElements[i];
-    const children = svgElement.children;
-
-    const originalColors = [];
-
-    for (let i = 0; i < children.length; i++) {
-      originalColors[i] = children[i].style.fill;
+  // Function to apply event listeners to SVG elements
+  function applyListeners(svgDocument, secondLayer) {
+    if (!svgDocument) {
+      console.error("SVG document is null");
+      return;
     }
 
-    // add hover effect
-    svgElement.addEventListener("mouseover", function () {
-      svgElement.style.cursor = "pointer";
-      printBodyPart(svgElement.id);
-      for (let i = 0; i < children.length; i++) {
-        const svgItem = children[i];
-        svgItem.style.fill = "#ed2b2b";
-        svgItem.style.transition = "transform 0.3s ease";
-        svgItem.style.transform = "translate(2px, -2px)";
+    let svgElements = svgDocument.getElementsByClassName("hover");
+
+    if (svgElements.length === 0) {
+      console.warn("No elements with class 'hover' found in the SVG document");
+    }
+
+    console.log(svgElements, "elems");
+
+    for (let i = 0; i < svgElements.length; i++) {
+      const svgElement = svgElements[i];
+
+      const children = svgElement.children;
+
+      const originalColors = [];
+
+      for (let j = 0; j < children.length; j++) {
+        originalColors[j] = children[j].style.fill;
       }
-    });
 
-    svgElement.addEventListener("mouseout", function () {
-      svgElement.style.cursor = "default";
-      printBodyPart("");
-      for (let i = 0; i < children.length; i++) {
-        const svgItem = children[i];
-        svgItem.style.fill = originalColors[i];
-        svgItem.style.transition = "transform 0.3s ease";
-        svgItem.style.transform = "translate(0px, 0px)";
-      } // Revert to original color on mouseout
-    });
+      // Add hover effect
+      svgElement.addEventListener("mouseover", function () {
+        svgElement.style.cursor = "pointer";
+        if (secondLayer) {
+          svgElement.style.fill = "#ed2b2b";
+          svgElement.style.transition = "transform 0.3s ease";
+          svgElement.style.transform = "translate(2px, -2px)";
 
-    svgElement.addEventListener("click", function (e) {
-      console.log(e.target, "target");
-      if (svgElement.id.includes("neck") || e.target.id.includes("neck")) {
-        window.webkit.messageHandlers.observer.postMessage({
-          bodypart: svgElement.id.substring(3, svgElement.id.length),
-        });
+          return;
+        }
+        for (let j = 0; j < children.length; j++) {
+          const svgItem = children[j];
+          svgItem.style.fill = "#ed2b2b";
+          svgItem.style.transition = "transform 0.3s ease";
+        }
+      });
 
-        return;
-      }
-      svgObject.data = `./assets/${svgElement.id}.svg`;
-    });
+      svgElement.addEventListener("mouseout", function () {
+        svgElement.style.cursor = "default";
+        if (secondLayer) {
+          svgElement.style.fill = "white";
+
+          return;
+        }
+        for (let j = 0; j < children.length; j++) {
+          const svgItem = children[j];
+          svgItem.style.fill = originalColors[j];
+          svgItem.style.transition = "transform 0.3s ease";
+          svgItem.style.transform = "translate(0px, 0px)";
+        } // Revert to original color on mouseout
+      });
+
+      svgElement.addEventListener("click", function (e) {
+        console.log(e.target, "target");
+        console.log(e.target.closest(`bp-head-${isFront ? "front" : "back"}`));
+        if (
+          selectableBodyParts.includes(
+            e.target.id.substring(3, e.target.id.length)
+          )
+        ) {
+          window.webkit.messageHandlers.observer.postMessage({
+            bodypart: e.target.id.substring(3, svgElement.id.length),
+          });
+          return;
+        }
+
+        // Update the SVG file to show detailed view
+        let newSvgFile = `./assets/${svgElement.id}.svg`;
+        console.log("Loading new SVG file:", newSvgFile);
+        svgObject.data = newSvgFile;
+
+        svgObject.onload = function () {
+          console.log("New SVG loaded:", newSvgFile);
+          let newSvgDocument = svgObject.contentDocument;
+          setTimeout(() => {
+            applyListeners(newSvgDocument, true); // Apply listeners to the new SVG elements
+          }, 500);
+        };
+      });
+    }
   }
-}
 
-function printBodyPart(bodyPartId) {
-  const printElement = document.getElementById("body-part-print");
-  // printElement.innerHTML = bodyPartId;
+  svgObject.onload = function () {
+    console.log("Initial SVG loaded");
+    let svgDocument = svgObject.contentDocument;
+    applyListeners(svgDocument);
+  };
+
+  if (svgObject.contentDocument) {
+    // If the SVG is already loaded, apply listeners immediately
+    let svgDocument = svgObject.contentDocument;
+    applyListeners(svgDocument);
+  }
 }
