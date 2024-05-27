@@ -2,19 +2,25 @@ window.onload = addStyleToSvg;
 
 const selectableBodyParts = [
   "chin",
-  "eye-left",
   "eye-right",
+  "eye-left",
   "ear-left",
   "ear-right",
   "nose",
   "tongue",
-  "neck",
+  "neck-front",
+  "neck-back",
   "frontal-scalp-region",
   "cheek-left",
   "cheek-right",
   "forehead",
   "temple-region-right",
   "temple-region-left",
+  "mouth",
+  "postauricular-region-left",
+  "postauricular-region-right",
+  "parietal-region",
+  "occipital-region"
 ];
 
 if (!window.webkit) {
@@ -174,7 +180,6 @@ function addStyleFor(svgFilePrefix) {
         if (secondLayer) {
           svgElement.style.fill = "#ed2b2b";
           svgElement.style.transition = "transform 0.3s ease";
-          svgElement.style.transform = "translate(2px, -2px)";
 
           return;
         }
@@ -196,7 +201,6 @@ function addStyleFor(svgFilePrefix) {
           const svgItem = children[j];
           svgItem.style.fill = originalColors[j];
           svgItem.style.transition = "transform 0.3s ease";
-          svgItem.style.transform = "translate(0px, 0px)";
         } // Revert to original color on mouseout
       });
 
@@ -206,6 +210,9 @@ function addStyleFor(svgFilePrefix) {
         if (
           selectableBodyParts.includes(
             e.target.id.substring(3, e.target.id.length)
+          ) ||
+          selectableBodyParts.includes(
+            svgElement.id.substring(3, svgElement.id.length)
           )
         ) {
           window.webkit.messageHandlers.observer.postMessage({
