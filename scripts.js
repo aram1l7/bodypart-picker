@@ -20,7 +20,12 @@ const selectableBodyParts = [
   "postauricular-region-left",
   "postauricular-region-right",
   "parietal-region",
-  "occipital-region"
+  "occipital-region",
+  "thorax",
+  "breast-left",
+  "breast-right",
+  "side-of-chest-left",
+  "side-of-chest-right",
 ];
 
 if (!window.webkit) {
@@ -29,7 +34,22 @@ if (!window.webkit) {
       observer: {
         postMessage: function (message) {
           console.log("Mock postMessage called with:", message);
-          // You can add more logic here to simulate the mobile behavior.
+        },
+      },
+      selectAllOptions: {
+        postMessage: function (message) {
+          console.log(
+            "Mock selectAllOptions postMessage called with:",
+            message
+          );
+        },
+      },
+      selectedBodyParts: {
+        postMessage: function (message) {
+          console.log(
+            "Mock selectedBodyParts postMessage called with:",
+            message
+          );
         },
       },
     },
@@ -37,6 +57,7 @@ if (!window.webkit) {
 }
 
 let isFront = true;
+let selectedParts = [];
 
 function switchSVG() {
   const svgFront = document.getElementById("svg-front");
@@ -53,16 +74,19 @@ function switchSVG() {
     svgFront.classList.remove("hidden");
   }
   isFront = !isFront;
+  sendSelectedParts();
+}
+
+function sendSelectedParts() {
+  const message = JSON.stringify(selectedParts);
+  window.webkit.messageHandlers.selectedBodyParts.postMessage(message);
 }
 
 var xDown = null;
 var yDown = null;
 
 function getTouches(evt) {
-  return (
-    evt.touches || // browser API
-    evt.originalEvent.touches
-  ); // jQuery
+  return evt.touches || evt.originalEvent.touches;
 }
 
 function handleTouchStart(evt) {
@@ -102,7 +126,6 @@ function handleTouchMove(evt) {
       }
     }
   }
-  /* reset values */
   xDown = null;
   yDown = null;
 }
@@ -114,10 +137,8 @@ if (window.screenWidth >= 1300) {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
     if (scrollHeight - clientHeight <= scrollTop) {
-      // Scrolled to bottom
       switchSVG();
     } else {
-      // Scrolled to top or middle
       switchSVG();
     }
   });
@@ -135,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function addStyleToSvg() {
-  addStyleFor("svg-front");
+  addStyleFor(isFront ? "svg-front" : "svg-back");
 }
 
 function addStyleFor(svgFilePrefix) {
@@ -148,7 +169,6 @@ function addStyleFor(svgFilePrefix) {
 
   console.log("Initial SVG object found:", svgObject);
 
-  // Function to apply event listeners to SVG elements
   function applyListeners(svgDocument, secondLayer) {
     if (!svgDocument) {
       console.error("SVG document is null");
@@ -165,22 +185,18 @@ function addStyleFor(svgFilePrefix) {
 
     for (let i = 0; i < svgElements.length; i++) {
       const svgElement = svgElements[i];
-
       const children = svgElement.children;
-
       const originalColors = [];
 
       for (let j = 0; j < children.length; j++) {
         originalColors[j] = children[j].style.fill;
       }
 
-      // Add hover effect
       svgElement.addEventListener("mouseover", function () {
         svgElement.style.cursor = "pointer";
         if (secondLayer) {
           svgElement.style.fill = "#ed2b2b";
           svgElement.style.transition = "transform 0.3s ease";
-
           return;
         }
         for (let j = 0; j < children.length; j++) {
@@ -193,46 +209,62 @@ function addStyleFor(svgFilePrefix) {
       svgElement.addEventListener("mouseout", function () {
         svgElement.style.cursor = "default";
         if (secondLayer) {
-          svgElement.style.fill = "white";
-
+          svgElement.style.fill = selectedParts.includes(svgElement.id)
+            ? "#ed2b2b"
+            : "white";
           return;
         }
         for (let j = 0; j < children.length; j++) {
           const svgItem = children[j];
-          svgItem.style.fill = originalColors[j];
+          svgItem.style.fill = selectedParts.includes(svgElement.id)
+            ? "#ed2b2b"
+            : originalColors[j];
           svgItem.style.transition = "transform 0.3s ease";
-        } // Revert to original color on mouseout
+        }
       });
 
       svgElement.addEventListener("click", function (e) {
-        console.log(e.target, "target");
-        console.log(e.target.closest(`bp-head-${isFront ? "front" : "back"}`));
-        if (
-          selectableBodyParts.includes(
-            e.target.id.substring(3, e.target.id.length)
-          ) ||
-          selectableBodyParts.includes(
-            svgElement.id.substring(3, svgElement.id.length)
-          )
-        ) {
-          window.webkit.messageHandlers.observer.postMessage({
-            bodypart: e.target.id.substring(3, svgElement.id.length),
-          });
-          return;
+        const id = e.target.id || svgElement.id;
+        if (selectedParts.includes(id)) {
+          selectedParts = selectedParts.filter((part) => part !== id);
+          if (secondLayer) {
+            svgElement.style.fill = "white";
+          } else {
+            for (let j = 0; j < children.length; j++) {
+              children[j].style.fill = originalColors[j];
+            }
+          }
+        } else {
+          selectedParts.push(id);
+          if (secondLayer) {
+            svgElement.style.fill = "#ed2b2b";
+          } else {
+            for (let j = 0; j < children.length; j++) {
+              children[j].style.fill = "#ed2b2b";
+            }
+          }
         }
 
-        // Update the SVG file to show detailed view
-        let newSvgFile = `./assets/${svgElement.id}.svg`;
-        console.log("Loading new SVG file:", newSvgFile);
-        svgObject.data = newSvgFile;
+        window.webkit.messageHandlers.observer.postMessage({
+          bodypart: id.substring(3),
+        });
 
-        svgObject.onload = function () {
-          console.log("New SVG loaded:", newSvgFile);
-          let newSvgDocument = svgObject.contentDocument;
-          setTimeout(() => {
-            applyListeners(newSvgDocument, true); // Apply listeners to the new SVG elements
-          }, 500);
-        };
+        sendSelectedParts();
+
+        if (!selectableBodyParts.includes(id.substring(3))) {
+          let newSvgFile = `./assets/${svgElement.id}.svg`;
+          console.log("Loading new SVG file:", newSvgFile);
+          svgObject.data = newSvgFile;
+
+          svgObject.onload = function () {
+            console.log("New SVG loaded:", newSvgFile);
+
+            let newSvgDocument = svgObject.contentDocument;
+            setTimeout(() => {
+              applyListeners(newSvgDocument, true);
+            }, 500);
+          };
+        }
       });
     }
   }
@@ -244,8 +276,29 @@ function addStyleFor(svgFilePrefix) {
   };
 
   if (svgObject.contentDocument) {
-    // If the SVG is already loaded, apply listeners immediately
     let svgDocument = svgObject.contentDocument;
     applyListeners(svgDocument);
   }
+}
+
+function deselectAll() {
+  selectedParts = [];
+  sendSelectedParts();
+  addStyleToSvg();
+}
+
+function deselect(parts) {
+  selectedParts = selectedParts.filter((part) => !parts.includes(part));
+  sendSelectedParts();
+  addStyleToSvg();
+}
+
+function select(parts) {
+  selectedParts = [...new Set([...selectedParts, ...parts])];
+  sendSelectedParts();
+  addStyleToSvg();
+}
+
+function setLanguage(language) {
+  console.log("Setting language to:", language);
 }
