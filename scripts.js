@@ -28,6 +28,33 @@ const selectableBodyParts = [
   "side-of-chest-right",
 ];
 
+const bodyPartHierarchy = {
+  head: [
+    "bp-head-front",
+    "bp-nose",
+    "bp-mouth",
+    "bp-cheek-right",
+    "bp-cheek-left",
+    "bp-chin",
+    "bp-tongue",
+    "bp-eye-right",
+    "bp-ear-right",
+    "bp-temple-region-right",
+    "bp-forehead",
+    "bp-frontal-scalp-region",
+    "bp-temple-region-left",
+    "bp-eye-left",
+    "bp-ear-left",
+  ],
+  abdomen: [
+    "abdomen-lateral-left",
+    "abdomen-lateral-right",
+    "lower-abdomen",
+    "upper-abdomen",
+  ],
+  // Add other major body parts and their child parts here...
+};
+
 if (!window.webkit) {
   window.webkit = {
     messageHandlers: {
@@ -80,6 +107,27 @@ function switchSVG() {
 function sendSelectedParts() {
   const message = JSON.stringify(selectedParts);
   window.webkit.messageHandlers.selectedBodyParts.postMessage(message);
+}
+
+function updateSelection(id) {
+  const parentPart = Object.keys(bodyPartHierarchy).find((parent) =>
+    bodyPartHierarchy[parent].includes(id)
+  );
+  if (!parentPart) return;
+
+  const siblings = bodyPartHierarchy[parentPart];
+  const allSiblingsSelected = siblings.every((sibling) =>
+    selectedParts.includes(sibling)
+  );
+
+  if (allSiblingsSelected) {
+    selectedParts = selectedParts.filter((part) => !siblings.includes(part));
+    if (!selectedParts.includes(parentPart)) {
+      selectedParts.push(parentPart);
+    }
+  } else {
+    selectedParts = selectedParts.filter((part) => part !== parentPart);
+  }
 }
 
 var xDown = null;
@@ -244,6 +292,8 @@ function addStyleFor(svgFilePrefix) {
             }
           }
         }
+
+        updateSelection(id);
 
         window.webkit.messageHandlers.observer.postMessage({
           bodypart: id.substring(3),
