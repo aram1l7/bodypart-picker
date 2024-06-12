@@ -26,10 +26,15 @@ const selectableBodyParts = [
   "breast-right",
   "side-of-chest-left",
   "side-of-chest-right",
+  "upper-right-quadrant-adbomen",
+  "upper-left-quadrant-adbomen",
+  "lower-right-quadrant-adbomen",
+  "lower-left-quadrant-adbomen",
+  "umbilical-region",
 ];
 
 const bodyPartHierarchy = {
-  head: [
+  "head-front": [
     "bp-head-front",
     "bp-nose",
     "bp-mouth",
@@ -46,11 +51,28 @@ const bodyPartHierarchy = {
     "bp-eye-left",
     "bp-ear-left",
   ],
+  thorax: [
+    "bp-sternum",
+    "bp-side-of-chest-right",
+    "bp-breast-right",
+    "bp-breast-left",
+    "bp-side-of-chest-left",
+  ],
+  "head-back": [
+    "bp-head-back",
+    "bp-parietal-region",
+    "bp-occipital-region",
+    "bp-postauricular-region-left",
+    "bp-ear-left",
+    "bp-postauricular-region-right",
+    "bp-ear-right",
+  ],
   abdomen: [
-    "abdomen-lateral-left",
-    "abdomen-lateral-right",
-    "lower-abdomen",
-    "upper-abdomen",
+    "bp-upper-right-quadrant-adbomen",
+    "bp-upper-left-quadrant-adbomen",
+    "bp-lower-right-quadrant-adbomen",
+    "bp-lower-left-quadrant-adbomen",
+    "bp-umbilical-region",
   ],
   // Add other major body parts and their child parts here...
 };
@@ -144,7 +166,7 @@ function handleTouchStart(evt) {
 }
 
 function handleTouchMove(evt) {
-  if (!xDown || !yDown) {
+  if (!xDown || yDown) {
     return;
   }
 
@@ -193,12 +215,8 @@ if (window.screenWidth >= 1300) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .querySelector("main")
-    .addEventListener("touchstart", handleTouchStart, false);
-  document
-    .querySelector("main")
-    .addEventListener("touchmove", handleTouchMove, false);
+  document.body.addEventListener("touchstart", handleTouchStart, false);
+  document.body.addEventListener("touchmove", handleTouchMove, false);
 
   document.getElementById("switch-btn").onclick = switchSVG;
 });
@@ -249,17 +267,23 @@ function addStyleFor(svgFilePrefix) {
         }
         for (let j = 0; j < children.length; j++) {
           const svgItem = children[j];
-          svgItem.style.fill = "#ed2b2b";
+          svgItem.style.fill = selectedParts.includes(svgElement.id)
+            ? "#ed2b2b"
+            : "#ed2b2b";
           svgItem.style.transition = "transform 0.3s ease";
         }
       });
 
       svgElement.addEventListener("mouseout", function () {
         svgElement.style.cursor = "default";
+        const parentId = svgElement.parentNode?.parentNode?.id;
+
         if (secondLayer) {
-          svgElement.style.fill = selectedParts.includes(svgElement.id)
-            ? "#ed2b2b"
-            : "white";
+          svgElement.style.fill =
+            selectedParts.includes(svgElement.id) ||
+            selectedParts.includes(parentId?.substring(3))
+              ? "#ed2b2b"
+              : "white";
           return;
         }
         for (let j = 0; j < children.length; j++) {
@@ -301,7 +325,7 @@ function addStyleFor(svgFilePrefix) {
 
         sendSelectedParts();
 
-        if (!selectableBodyParts.includes(id.substring(3))) {
+        if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
           let newSvgFile = `./assets/${svgElement.id}.svg`;
           console.log("Loading new SVG file:", newSvgFile);
           svgObject.data = newSvgFile;
