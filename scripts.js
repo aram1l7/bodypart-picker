@@ -77,34 +77,6 @@ const bodyPartHierarchy = {
   // Add other major body parts and their child parts here...
 };
 
-// if (!window.webkit) {
-//   window.webkit = {
-//     messageHandlers: {
-//       observer: {
-//         postMessage: function (message) {
-//           console.log("Mock postMessage called with:", message);
-//         },
-//       },
-//       selectAllOptions: {
-//         postMessage: function (message) {
-//           console.log(
-//             "Mock selectAllOptions postMessage called with:",
-//             message
-//           );
-//         },
-//       },
-//       selectedBodyParts: {
-//         postMessage: function (message) {
-//           console.log(
-//             "Mock selectedBodyParts postMessage called with:",
-//             message
-//           );
-//         },
-//       },
-//     },
-//   };
-// }
-
 let isFront = true;
 let selectedParts = [];
 
@@ -227,7 +199,11 @@ document.addEventListener("DOMContentLoaded", function () {
   document.body.addEventListener("touchstart", handleTouchStart, false);
   document.body.addEventListener("touchmove", handleTouchMove, false);
 
-  document.getElementById("switch-btn").onclick = switchSVG;
+  const siema = new Siema({ perPage: 1 });
+
+  document.getElementById("switch-btn").onclick = () => {
+    siema.next();
+  };
 });
 
 function addStyleToSvg(isDeselect) {
@@ -243,6 +219,21 @@ function addStyleFor(svgFilePrefix, isDeselect) {
   }
 
   console.log("Initial SVG object found:", svgObject);
+
+  const svg = svgObject.contentDocument.querySelector("svg");
+
+  const style = svgObject.contentDocument.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "style"
+  );
+
+  style.textContent = `svg {
+      transform: scale(1.5);
+    }`;
+
+  if (window.screen.width < 1200) {
+    svg.insertBefore(style, svg.firstChild);
+  }
 
   function applyListeners(svgDocument, secondLayer) {
     if (!svgDocument) {
@@ -369,6 +360,7 @@ function addStyleFor(svgFilePrefix, isDeselect) {
   svgObject.onload = function () {
     console.log("Initial SVG loaded");
     let svgDocument = svgObject.contentDocument;
+
     applyListeners(svgDocument);
   };
 

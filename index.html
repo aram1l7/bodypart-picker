@@ -12,23 +12,28 @@
 
   <body>
     <main>
-      <div id="wrapper">
-        <object
-          id="svg-front"
-          class="svg"
-          data="./assets/whole-body-front.svg"
-          type="image/svg+xml"
-        ></object>
+      <div id="wrapper" class="siema">
+        <div class="object-wrapper">
+          <object
+            id="svg-front"
+            class="svg"
+            data="./assets/whole-body-front.svg"
+            type="image/svg+xml"
+          ></object>
+        </div>
 
-        <object
-          id="svg-back"
-          class="svg hidden"
-          data="./assets/whole-body-back.svg"
-          type="image/svg+xml"
-        ></object>
+        <div class="object-wrapper">
+          <object
+            id="svg-back"
+            class="svg"
+            data="./assets/whole-body-back.svg"
+            type="image/svg+xml"
+          ></object>
+        </div>
       </div>
       <button id="switch-btn">Switch</button>
     </main>
+    <script src="siema.min.js"></script>
     <script src="./scripts.js"></script>
   </body>
 </html>

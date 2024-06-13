@@ -5,30 +5,19 @@ body {
   background-color: black;
 }
 
-main {
-  display: grid;
-  place-items: center;
-
-  height: 105vh;
-}
-
 #body-section {
   display: grid;
   grid-template-columns: 0.5fr 0.5fr; /* Create two equal-width columns */
   justify-content: space-between; /* Center horizontally */
 }
 
-.svg {
-  height: 75vh;
-}
-
 @media only screen and (max-width: 1200px) {
   .svg {
-    height: 55vh;
+    height: 55vh !important;
   }
 
   #wrapper object {
-    transform: scale(1.3);
+    max-width: 255px !important;
   }
 
   main {
@@ -42,4 +31,40 @@ main {
 
 .hidden {
   display: none;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+main {
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.siema {
+  width: 100%;
+  overflow: hidden;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+}
+
+#wrapper object {
+  max-width: 500px;
+}
+
+.object-wrapper {
+  display: flex;
+  justify-content: center;
 }
