@@ -77,33 +77,33 @@ const bodyPartHierarchy = {
   // Add other major body parts and their child parts here...
 };
 
-if (!window.webkit) {
-  window.webkit = {
-    messageHandlers: {
-      observer: {
-        postMessage: function (message) {
-          console.log("Mock postMessage called with:", message);
-        },
-      },
-      selectAllOptions: {
-        postMessage: function (message) {
-          console.log(
-            "Mock selectAllOptions postMessage called with:",
-            message
-          );
-        },
-      },
-      selectedBodyParts: {
-        postMessage: function (message) {
-          console.log(
-            "Mock selectedBodyParts postMessage called with:",
-            message
-          );
-        },
-      },
-    },
-  };
-}
+// if (!window.webkit) {
+//   window.webkit = {
+//     messageHandlers: {
+//       observer: {
+//         postMessage: function (message) {
+//           console.log("Mock postMessage called with:", message);
+//         },
+//       },
+//       selectAllOptions: {
+//         postMessage: function (message) {
+//           console.log(
+//             "Mock selectAllOptions postMessage called with:",
+//             message
+//           );
+//         },
+//       },
+//       selectedBodyParts: {
+//         postMessage: function (message) {
+//           console.log(
+//             "Mock selectedBodyParts postMessage called with:",
+//             message
+//           );
+//         },
+//       },
+//     },
+//   };
+// }
 
 let isFront = true;
 let selectedParts = [];
@@ -128,7 +128,16 @@ function switchSVG() {
 
 function sendSelectedParts() {
   const message = JSON.stringify(selectedParts);
-  window.webkit.messageHandlers.selectedBodyParts.postMessage(message);
+
+  if (
+    window.webkit &&
+    window.webkit.messageHandlers &&
+    window.webkit.messageHandlers.selectedBodyParts
+  ) {
+    window.webkit.messageHandlers.selectedBodyParts.postMessage(message);
+  } else {
+    console.error("WebKit message handler or selectedBodyParts is not defined");
+  }
 }
 
 function updateSelection(id) {
@@ -221,11 +230,11 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("switch-btn").onclick = switchSVG;
 });
 
-function addStyleToSvg() {
-  addStyleFor(isFront ? "svg-front" : "svg-back");
+function addStyleToSvg(isDeselect) {
+  addStyleFor(isFront ? "svg-front" : "svg-back", isDeselect);
 }
 
-function addStyleFor(svgFilePrefix) {
+function addStyleFor(svgFilePrefix, isDeselect) {
   let svgObject = document.getElementById(svgFilePrefix);
 
   if (!svgObject) {
@@ -253,6 +262,10 @@ function addStyleFor(svgFilePrefix) {
       const svgElement = svgElements[i];
       const children = svgElement.children;
       const originalColors = [];
+
+      if (isDeselect) {
+        svgElement.style.fill = "white";
+      }
 
       for (let j = 0; j < children.length; j++) {
         originalColors[j] = children[j].style.fill;
@@ -319,9 +332,19 @@ function addStyleFor(svgFilePrefix) {
 
         updateSelection(id);
 
-        window.webkit.messageHandlers.observer.postMessage({
-          bodypart: id.substring(3),
-        });
+        if (
+          window.webkit &&
+          window.webkit.messageHandlers &&
+          window.webkit.messageHandlers.observer
+        ) {
+          window.webkit.messageHandlers.observer.postMessage({
+            bodypart: id.substring(3),
+          });
+        } else {
+          console.error(
+            "WebKit message handler or selectedBodyParts is not defined"
+          );
+        }
 
         sendSelectedParts();
 
@@ -358,13 +381,15 @@ function addStyleFor(svgFilePrefix) {
 function deselectAll() {
   selectedParts = [];
   sendSelectedParts();
-  addStyleToSvg();
+  const isDeselect = true;
+  addStyleToSvg(isDeselect);
 }
 
 function deselect(parts) {
   selectedParts = selectedParts.filter((part) => !parts.includes(part));
   sendSelectedParts();
-  addStyleToSvg();
+  const isDeselect = true;
+  addStyleToSvg(isDeselect);
 }
 
 function select(parts) {
