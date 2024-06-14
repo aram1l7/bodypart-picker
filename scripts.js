@@ -133,54 +133,6 @@ function updateSelection(id) {
   }
 }
 
-var xDown = null;
-var yDown = null;
-
-function getTouches(evt) {
-  return evt.touches || evt.originalEvent.touches;
-}
-
-function handleTouchStart(evt) {
-  const firstTouch = getTouches(evt)[0];
-  xDown = firstTouch.clientX;
-  yDown = firstTouch.clientY;
-}
-
-function handleTouchMove(evt) {
-  if (!xDown || yDown) {
-    return;
-  }
-
-  var xUp = evt.touches[0].clientX;
-  var yUp = evt.touches[0].clientY;
-
-  var xDiff = xDown - xUp;
-  var yDiff = yDown - yUp;
-
-  if (Math.abs(xDiff) > Math.abs(yDiff)) {
-    const svgFront = document.getElementById("svg-front");
-    const svgBack = document.getElementById("svg-back");
-
-    if (xDiff > 0) {
-      if (isFront) {
-        svgFront.classList.add("hidden");
-        svgBack.classList.remove("hidden");
-        addStyleFor("svg-back");
-
-        isFront = false;
-      }
-    } else {
-      if (!isFront) {
-        svgFront.classList.remove("hidden");
-        svgBack.classList.add("hidden");
-        isFront = true;
-      }
-    }
-  }
-  xDown = null;
-  yDown = null;
-}
-
 if (window.screenWidth >= 1300) {
   window.addEventListener("scroll", function () {
     const scrollHeight = document.documentElement.scrollHeight;
@@ -196,13 +148,15 @@ if (window.screenWidth >= 1300) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  document.body.addEventListener("touchstart", handleTouchStart, false);
-  document.body.addEventListener("touchmove", handleTouchMove, false);
-
-  const siema = new Siema({ perPage: 1 });
+  const siemaInstance = new Siema({
+    perPage: 1,
+    onChange: (e) => {
+      transformAndScaleSvg(document.getElementById("svg-back"));
+    },
+  });
 
   document.getElementById("switch-btn").onclick = () => {
-    siema.next();
+    siemaInstance.next();
   };
 });
 
@@ -210,16 +164,7 @@ function addStyleToSvg(isDeselect) {
   addStyleFor(isFront ? "svg-front" : "svg-back", isDeselect);
 }
 
-function addStyleFor(svgFilePrefix, isDeselect) {
-  let svgObject = document.getElementById(svgFilePrefix);
-
-  if (!svgObject) {
-    console.error("SVG object not found with id:", svgFilePrefix);
-    return;
-  }
-
-  console.log("Initial SVG object found:", svgObject);
-
+function transformAndScaleSvg(svgObject) {
   const svg = svgObject.contentDocument.querySelector("svg");
 
   const style = svgObject.contentDocument.createElementNS(
@@ -233,7 +178,24 @@ function addStyleFor(svgFilePrefix, isDeselect) {
 
   if (window.screen.width < 1200) {
     svg.insertBefore(style, svg.firstChild);
+
+    const viewBoxValue = `200 0 680 1460`;
+
+    svg.setAttribute("viewBox", viewBoxValue);
   }
+}
+
+function addStyleFor(svgFilePrefix, isDeselect) {
+  let svgObject = document.getElementById(svgFilePrefix);
+
+  if (!svgObject) {
+    console.error("SVG object not found with id:", svgFilePrefix);
+    return;
+  }
+
+  console.log("Initial SVG object found:", svgObject);
+
+  transformAndScaleSvg(svgObject);
 
   function applyListeners(svgDocument, secondLayer) {
     if (!svgDocument) {
