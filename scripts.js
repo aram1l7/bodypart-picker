@@ -80,24 +80,6 @@ const bodyPartHierarchy = {
 let isFront = true;
 let selectedParts = [];
 
-function switchSVG() {
-  const svgFront = document.getElementById("svg-front");
-  const svgBack = document.getElementById("svg-back");
-
-  if (isFront) {
-    svgBack.classList.remove("hidden");
-    svgFront.classList.add("hidden");
-    setTimeout(() => {
-      addStyleFor("svg-back");
-    }, 500);
-  } else {
-    svgBack.classList.add("hidden");
-    svgFront.classList.remove("hidden");
-  }
-  isFront = !isFront;
-  sendSelectedParts();
-}
-
 function sendSelectedParts() {
   const message = JSON.stringify(selectedParts);
 
@@ -133,34 +115,46 @@ function updateSelection(id) {
   }
 }
 
-if (window.screenWidth >= 1300) {
-  window.addEventListener("scroll", function () {
-    const scrollHeight = document.documentElement.scrollHeight;
-    const clientHeight = window.innerHeight;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-    if (scrollHeight - clientHeight <= scrollTop) {
-      switchSVG();
-    } else {
-      switchSVG();
-    }
-  });
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   const siemaInstance = new Siema({
     perPage: 1,
     onChange: (e) => {
-      transformAndScaleSvg(document.getElementById("svg-back"));
+      console.log(siemaInstance.currentSlide);
+      if (siemaInstance.currentSlide === 0) {
+        document.querySelector(".prev").style.backgroundColor = "white";
+
+        document.querySelector(".next").style.backgroundColor =
+          "rgb(175, 175, 175)";
+
+        isFront = true;
+      } else {
+        document.querySelector(".prev").style.backgroundColor =
+          "rgb(175, 175, 175)";
+        document.querySelector(".next").style.backgroundColor = "white";
+        isFront = false;
+      }
+      addStyleToSvg();
     },
   });
 
-  document.getElementById("switch-btn").onclick = () => {
+  document.querySelector(".prev").style.backgroundColor =
+    siemaInstance.currentSlide === 0 ? "white" : "rgb(175, 175, 175)";
+
+  document.querySelector(".prev").onclick = function () {
+    if (siemaInstance.currentSlide === 0) return;
+
+    siemaInstance.prev();
+  };
+
+  document.querySelector(".next").onclick = function () {
+    if (siemaInstance.currentSlide === 1) return;
+
     siemaInstance.next();
   };
 });
 
 function addStyleToSvg(isDeselect) {
+  console.log(isFront, "is");
   addStyleFor(isFront ? "svg-front" : "svg-back", isDeselect);
 }
 

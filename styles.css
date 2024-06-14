@@ -68,3 +68,19 @@ main {
   display: flex;
   justify-content: center;
 }
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 50px;
+}
+
+.control {
+  width: 12px;
+  height: 12px;
+  background-color: rgb(175, 175, 175);
+  transition: 0.3s ease background-color;
+  border-radius: 100%;
+  cursor: pointer;
+}
