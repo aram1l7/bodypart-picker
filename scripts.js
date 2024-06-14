@@ -228,7 +228,7 @@ function addStyleFor(svgFilePrefix, isDeselect) {
   );
 
   style.textContent = `svg {
-      transform: scale(1.5);
+      transform: scale(1.25);
     }`;
 
   if (window.screen.width < 1200) {

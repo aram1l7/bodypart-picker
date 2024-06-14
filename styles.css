@@ -16,10 +16,6 @@ body {
     height: 55vh !important;
   }
 
-  #wrapper object {
-    max-width: 255px !important;
-  }
-
   main {
     overflow: hidden;
     position: fixed;
