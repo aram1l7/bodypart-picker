@@ -135,6 +135,21 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       addStyleToSvg();
     },
+    selector: "#wrapper",
+  });
+
+  const svgElements = document.querySelectorAll('object.svg');
+
+  svgElements.forEach(svg => {
+    svg.addEventListener('load', () => {
+      const svgDoc = svg.contentDocument;
+      const svgRoot = svgDoc.documentElement;
+
+      const hammer = new Hammer(svgRoot);
+
+      hammer.on('swipeleft', () => siemaInstance.next());
+      hammer.on('swiperight', () => siemaInstance.prev());
+    });
   });
 
   document.querySelector(".prev").style.backgroundColor =
