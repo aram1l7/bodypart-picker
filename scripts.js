@@ -38,6 +38,13 @@ const selectableBodyParts = [
   "groin-right",
   "mons-pubis",
   "genital-organ",
+  "lower-leg-tibial-anterior-right",
+  "thigh-medial-right-front",
+  "knee-right",
+  "thigh-lateral-right-front",
+  "trochanter-right",
+  "lower-leg-lateral-right-front",
+  "lower-leg-medial-right-front",
 ];
 
 const bodyPartHierarchy = {
@@ -90,7 +97,29 @@ const bodyPartHierarchy = {
     "bp-mons-pubis",
     "bp-genital-organ",
   ],
-  "bp-lower-limb-right-front": [],
+  "bp-lower-limb-right-front": [
+    "bp-lower-leg-tibial-anterior-right",
+    "bp-thigh-medial-right-front",
+    "bp-knee-right",
+    "bp-thigh-lateral-right-front",
+    "bp-trochanter-right",
+    "bp-lower-leg-lateral-right-front",
+    "bp-lower-leg-medial-right-front",
+  ],
+  "foot-right-dorsal": [
+    "bp-metatarsophalangeal-joint-great-toe-right-dorsal",
+    "bp-ankle-medial-right-front",
+    "bp-ankle-lateral-right-front",
+    "bp-first-metatarsal-right-dorsal",
+    "bp-second-metatarsal-right-dorsal",
+    "bp-third-metatarsal-right-dorsal",
+    "bp-fourth-metatarsal-right-dorsal",
+    "bp-fifth-metatarsal-right-dorsal",
+    "bp-metatarsophalangeal-joint-great-toe-right-dorsal",
+    "bp-metatarsophalangeal-joint-second-toe-right-dorsal",
+    "bp-metatarsophalangeal-joint-third-toe-right-dorsal",
+    "bp-metatarsophalangeal-joint-fifth-toe-right-dorsal",
+  ],
 };
 
 let isFront = true;
@@ -224,6 +253,7 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
   console.log(svgElements, "elems");
 
+  // Assuming svgElements is a NodeList or array of <g> elements
   for (let i = 0; i < svgElements.length; i++) {
     const svgElement = svgElements[i];
     const children = svgElement.children;
@@ -233,47 +263,72 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
       svgElement.style.fill = "white";
     }
 
+    // Store the original colors of the child elements
     for (let j = 0; j < children.length; j++) {
       originalColors[j] = children[j].style.fill;
     }
 
+    // Mouseover event to change fill color
     svgElement.addEventListener("mouseover", function () {
       svgElement.style.cursor = "pointer";
+
       if (secondLayer) {
-        svgElement.style.fill = "#ed2b2b";
-        svgElement.style.transition = "transform 0.3s ease";
+        if (svgElement.nodeName === "path") {
+          svgElement.style.fill = "#ed2b2b";
+          svgElement.style.transition = "fill 0.3s ease";
+        } else {
+          for (let j = 0; j < children.length; j++) {
+            const svgItem = children[j];
+            svgItem.style.fill = "#ed2b2b";
+            svgItem.style.transition = "fill 0.3s ease";
+          }
+        }
+
         return;
       }
+
       for (let j = 0; j < children.length; j++) {
         const svgItem = children[j];
-        svgItem.style.fill = selectedParts.includes(svgElement.id)
-          ? "#ed2b2b"
-          : "#ed2b2b";
-        svgItem.style.transition = "transform 0.3s ease";
+        svgItem.style.fill = "#ed2b2b";
+        svgItem.style.transition = "fill 0.3s ease";
       }
     });
 
+    // Mouseout event to revert to the original color
     svgElement.addEventListener("mouseout", function () {
       svgElement.style.cursor = "default";
+
       const parentId = svgElement.parentNode?.parentNode?.id;
 
       if (secondLayer) {
-        svgElement.style.fill =
-          selectedParts.includes(svgElement.id) ||
-          selectedParts.includes(parentId?.substring(3))
-            ? "#ed2b2b"
-            : "white";
+        if (svgElement.nodeName === "path") {
+          svgElement.style.fill =
+            selectedParts.includes(svgElement.id) ||
+            selectedParts.includes(parentId?.substring(3))
+              ? "#ed2b2b"
+              : "white";
+        } else {
+          for (let j = 0; j < children.length; j++) {
+            const svgItem = children[j];
+            svgItem.style.fill =
+              selectedParts.includes(svgElement.id) ||
+              selectedParts.includes(parentId?.substring(3))
+                ? "#ed2b2b"
+                : "white";
+          }
+        }
+
         return;
       }
+
       for (let j = 0; j < children.length; j++) {
         const svgItem = children[j];
-        svgItem.style.fill = selectedParts.includes(svgElement.id)
-          ? "#ed2b2b"
-          : originalColors[j];
-        svgItem.style.transition = "transform 0.3s ease";
+        svgItem.style.fill = originalColors[j];
+        svgItem.style.transition = "fill 0.3s ease";
       }
     });
 
+    // Click event to toggle selection
     svgElement.addEventListener("click", function (e) {
       const id = e.target.id || svgElement.id;
       if (selectedParts.includes(id)) {
