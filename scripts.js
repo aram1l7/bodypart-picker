@@ -31,6 +31,13 @@ const selectableBodyParts = [
   "lower-right-quadrant-adbomen",
   "lower-left-quadrant-adbomen",
   "umbilical-region",
+  "sternum",
+  "hip-left",
+  "groin-left",
+  "hip-right",
+  "groin-right",
+  "mons-pubis",
+  "genital-organ",
 ];
 
 const bodyPartHierarchy = {
@@ -74,7 +81,16 @@ const bodyPartHierarchy = {
     "bp-lower-left-quadrant-adbomen",
     "bp-umbilical-region",
   ],
-  // Add other major body parts and their child parts here...
+  "pelvic-region-front": [
+    "bp-pelvic-region-front",
+    "bp-hip-left",
+    "bp-groin-left",
+    "bp-hip-right",
+    "bp-groin-right",
+    "bp-mons-pubis",
+    "bp-genital-organ",
+  ],
+  "bp-lower-limb-right-front": [],
 };
 
 let isFront = true;
@@ -138,17 +154,17 @@ document.addEventListener("DOMContentLoaded", function () {
     selector: "#wrapper",
   });
 
-  const svgElements = document.querySelectorAll('object.svg');
+  const svgElements = document.querySelectorAll("object.svg");
 
-  svgElements.forEach(svg => {
-    svg.addEventListener('load', () => {
+  svgElements.forEach((svg) => {
+    svg.addEventListener("load", () => {
       const svgDoc = svg.contentDocument;
       const svgRoot = svgDoc.documentElement;
 
       const hammer = new Hammer(svgRoot);
 
-      hammer.on('swipeleft', () => siemaInstance.next());
-      hammer.on('swiperight', () => siemaInstance.prev());
+      hammer.on("swipeleft", () => siemaInstance.next());
+      hammer.on("swiperight", () => siemaInstance.prev());
     });
   });
 
@@ -194,6 +210,128 @@ function transformAndScaleSvg(svgObject) {
   }
 }
 
+function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
+  if (!svgDocument) {
+    console.error("SVG document is null");
+    return;
+  }
+
+  let svgElements = svgDocument.getElementsByClassName("hover");
+
+  if (svgElements.length === 0) {
+    console.warn("No elements with class 'hover' found in the SVG document");
+  }
+
+  console.log(svgElements, "elems");
+
+  for (let i = 0; i < svgElements.length; i++) {
+    const svgElement = svgElements[i];
+    const children = svgElement.children;
+    const originalColors = [];
+
+    if (isDeselect) {
+      svgElement.style.fill = "white";
+    }
+
+    for (let j = 0; j < children.length; j++) {
+      originalColors[j] = children[j].style.fill;
+    }
+
+    svgElement.addEventListener("mouseover", function () {
+      svgElement.style.cursor = "pointer";
+      if (secondLayer) {
+        svgElement.style.fill = "#ed2b2b";
+        svgElement.style.transition = "transform 0.3s ease";
+        return;
+      }
+      for (let j = 0; j < children.length; j++) {
+        const svgItem = children[j];
+        svgItem.style.fill = selectedParts.includes(svgElement.id)
+          ? "#ed2b2b"
+          : "#ed2b2b";
+        svgItem.style.transition = "transform 0.3s ease";
+      }
+    });
+
+    svgElement.addEventListener("mouseout", function () {
+      svgElement.style.cursor = "default";
+      const parentId = svgElement.parentNode?.parentNode?.id;
+
+      if (secondLayer) {
+        svgElement.style.fill =
+          selectedParts.includes(svgElement.id) ||
+          selectedParts.includes(parentId?.substring(3))
+            ? "#ed2b2b"
+            : "white";
+        return;
+      }
+      for (let j = 0; j < children.length; j++) {
+        const svgItem = children[j];
+        svgItem.style.fill = selectedParts.includes(svgElement.id)
+          ? "#ed2b2b"
+          : originalColors[j];
+        svgItem.style.transition = "transform 0.3s ease";
+      }
+    });
+
+    svgElement.addEventListener("click", function (e) {
+      const id = e.target.id || svgElement.id;
+      if (selectedParts.includes(id)) {
+        selectedParts = selectedParts.filter((part) => part !== id);
+        if (secondLayer) {
+          svgElement.style.fill = "white";
+        } else {
+          for (let j = 0; j < children.length; j++) {
+            children[j].style.fill = originalColors[j];
+          }
+        }
+      } else {
+        selectedParts.push(id);
+        if (secondLayer) {
+          svgElement.style.fill = "#ed2b2b";
+        } else {
+          for (let j = 0; j < children.length; j++) {
+            children[j].style.fill = "#ed2b2b";
+          }
+        }
+      }
+
+      updateSelection(id);
+
+      if (
+        window.webkit &&
+        window.webkit.messageHandlers &&
+        window.webkit.messageHandlers.observer
+      ) {
+        window.webkit.messageHandlers.observer.postMessage({
+          bodypart: id.substring(3),
+        });
+      } else {
+        console.error(
+          "WebKit message handler or selectedBodyParts is not defined"
+        );
+      }
+
+      sendSelectedParts();
+
+      if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
+        let newSvgFile = `./assets/${svgElement.id}.svg`;
+        console.log("Loading new SVG file:", newSvgFile);
+        svgObject.data = newSvgFile;
+
+        svgObject.onload = function () {
+          console.log("New SVG loaded:", newSvgFile);
+
+          let newSvgDocument = svgObject.contentDocument;
+          setTimeout(() => {
+            applyListeners(newSvgDocument, true, isDeselect, svgObject);
+          }, 500);
+        };
+      }
+    });
+  }
+}
+
 function addStyleFor(svgFilePrefix, isDeselect) {
   let svgObject = document.getElementById(svgFilePrefix);
 
@@ -206,138 +344,16 @@ function addStyleFor(svgFilePrefix, isDeselect) {
 
   transformAndScaleSvg(svgObject);
 
-  function applyListeners(svgDocument, secondLayer) {
-    if (!svgDocument) {
-      console.error("SVG document is null");
-      return;
-    }
-
-    let svgElements = svgDocument.getElementsByClassName("hover");
-
-    if (svgElements.length === 0) {
-      console.warn("No elements with class 'hover' found in the SVG document");
-    }
-
-    console.log(svgElements, "elems");
-
-    for (let i = 0; i < svgElements.length; i++) {
-      const svgElement = svgElements[i];
-      const children = svgElement.children;
-      const originalColors = [];
-
-      if (isDeselect) {
-        svgElement.style.fill = "white";
-      }
-
-      for (let j = 0; j < children.length; j++) {
-        originalColors[j] = children[j].style.fill;
-      }
-
-      svgElement.addEventListener("mouseover", function () {
-        svgElement.style.cursor = "pointer";
-        if (secondLayer) {
-          svgElement.style.fill = "#ed2b2b";
-          svgElement.style.transition = "transform 0.3s ease";
-          return;
-        }
-        for (let j = 0; j < children.length; j++) {
-          const svgItem = children[j];
-          svgItem.style.fill = selectedParts.includes(svgElement.id)
-            ? "#ed2b2b"
-            : "#ed2b2b";
-          svgItem.style.transition = "transform 0.3s ease";
-        }
-      });
-
-      svgElement.addEventListener("mouseout", function () {
-        svgElement.style.cursor = "default";
-        const parentId = svgElement.parentNode?.parentNode?.id;
-
-        if (secondLayer) {
-          svgElement.style.fill =
-            selectedParts.includes(svgElement.id) ||
-            selectedParts.includes(parentId?.substring(3))
-              ? "#ed2b2b"
-              : "white";
-          return;
-        }
-        for (let j = 0; j < children.length; j++) {
-          const svgItem = children[j];
-          svgItem.style.fill = selectedParts.includes(svgElement.id)
-            ? "#ed2b2b"
-            : originalColors[j];
-          svgItem.style.transition = "transform 0.3s ease";
-        }
-      });
-
-      svgElement.addEventListener("click", function (e) {
-        const id = e.target.id || svgElement.id;
-        if (selectedParts.includes(id)) {
-          selectedParts = selectedParts.filter((part) => part !== id);
-          if (secondLayer) {
-            svgElement.style.fill = "white";
-          } else {
-            for (let j = 0; j < children.length; j++) {
-              children[j].style.fill = originalColors[j];
-            }
-          }
-        } else {
-          selectedParts.push(id);
-          if (secondLayer) {
-            svgElement.style.fill = "#ed2b2b";
-          } else {
-            for (let j = 0; j < children.length; j++) {
-              children[j].style.fill = "#ed2b2b";
-            }
-          }
-        }
-
-        updateSelection(id);
-
-        if (
-          window.webkit &&
-          window.webkit.messageHandlers &&
-          window.webkit.messageHandlers.observer
-        ) {
-          window.webkit.messageHandlers.observer.postMessage({
-            bodypart: id.substring(3),
-          });
-        } else {
-          console.error(
-            "WebKit message handler or selectedBodyParts is not defined"
-          );
-        }
-
-        sendSelectedParts();
-
-        if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
-          let newSvgFile = `./assets/${svgElement.id}.svg`;
-          console.log("Loading new SVG file:", newSvgFile);
-          svgObject.data = newSvgFile;
-
-          svgObject.onload = function () {
-            console.log("New SVG loaded:", newSvgFile);
-
-            let newSvgDocument = svgObject.contentDocument;
-            setTimeout(() => {
-              applyListeners(newSvgDocument, true);
-            }, 500);
-          };
-        }
-      });
-    }
-  }
-
   svgObject.onload = function () {
     console.log("Initial SVG loaded");
     let svgDocument = svgObject.contentDocument;
 
-    applyListeners(svgDocument);
+    applyListeners(svgDocument, false, isDeselect, svgObject);
   };
 
   if (svgObject.contentDocument) {
     let svgDocument = svgObject.contentDocument;
-    applyListeners(svgDocument);
+    applyListeners(svgDocument, false, isDeselect, svgObject);
   }
 }
 
