@@ -1,5 +1,7 @@
 window.onload = addStyleToSvg;
 
+const replacableBodyParts = ["bp-upper-limb-left-front", "bp-hand-left-palmar"];
+
 const selectableBodyParts = [
   "chin",
   "eye-right",
@@ -45,6 +47,16 @@ const selectableBodyParts = [
   "trochanter-right",
   "lower-leg-lateral-right-front",
   "lower-leg-medial-right-front",
+  "shoulder-right-front",
+  "elbow-right-front",
+  "armpit-right",
+  "upper-arm-right-front",
+  "forearm-right-front",
+  "shoulder-left-front",
+  "elbow-left-front",
+  "armpit-left",
+  "upper-arm-left-front",
+  "forearm-left-front",
 ];
 
 const bodyPartHierarchy = {
@@ -120,7 +132,37 @@ const bodyPartHierarchy = {
     "bp-metatarsophalangeal-joint-third-toe-right-dorsal",
     "bp-metatarsophalangeal-joint-fifth-toe-right-dorsal",
   ],
+  "bp-upper-limb-right-front": [
+    "bp-shoulder-right-front",
+    "bp-armpit-right",
+    "bp-elbow-right-front",
+    "bp-upper-arm-right-front",
+    "bp-forearm-right-front",
+  ],
 };
+
+function flipSVG(svgDoc) {
+  const svg = svgDoc.querySelector("svg");
+  svg.setAttribute("transform", "scale(-1, 1)");
+
+  function updateIds(element) {
+    if (element.hasAttribute("id")) {
+      var id = element.getAttribute("id");
+      if (id.includes("right")) {
+        element.setAttribute("id", id.replace("right", "left"));
+      }
+    }
+    Array.from(element.children).forEach(updateIds);
+  }
+
+  const gElements = svg.querySelectorAll("g");
+  gElements.forEach(updateIds);
+
+  gElements.forEach(function (g) {
+    let pathElements = g.querySelectorAll("path");
+    pathElements.forEach(updateIds);
+  });
+}
 
 let isFront = true;
 let selectedParts = [];
@@ -214,7 +256,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function addStyleToSvg(isDeselect) {
-  console.log(isFront, "is");
   addStyleFor(isFront ? "svg-front" : "svg-back", isDeselect);
 }
 
@@ -253,7 +294,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
   console.log(svgElements, "elems");
 
-  // Assuming svgElements is a NodeList or array of <g> elements
   for (let i = 0; i < svgElements.length; i++) {
     const svgElement = svgElements[i];
     const children = svgElement.children;
@@ -263,12 +303,10 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
       svgElement.style.fill = "white";
     }
 
-    // Store the original colors of the child elements
     for (let j = 0; j < children.length; j++) {
       originalColors[j] = children[j].style.fill;
     }
 
-    // Mouseover event to change fill color
     svgElement.addEventListener("mouseover", function () {
       svgElement.style.cursor = "pointer";
 
@@ -294,7 +332,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
       }
     });
 
-    // Mouseout event to revert to the original color
     svgElement.addEventListener("mouseout", function () {
       svgElement.style.cursor = "default";
 
@@ -328,7 +365,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
       }
     });
 
-    // Click event to toggle selection
     svgElement.addEventListener("click", function (e) {
       const id = e.target.id || svgElement.id;
       if (selectedParts.includes(id)) {
@@ -371,6 +407,11 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
       if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
         let newSvgFile = `./assets/${svgElement.id}.svg`;
+
+        if (replacableBodyParts.includes(svgElement.id)) {
+          newSvgFile = `./assets/${svgElement.id.replace("left", "right")}.svg`;
+        }
+
         console.log("Loading new SVG file:", newSvgFile);
         svgObject.data = newSvgFile;
 
@@ -378,6 +419,9 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
           console.log("New SVG loaded:", newSvgFile);
 
           let newSvgDocument = svgObject.contentDocument;
+          if (replacableBodyParts.includes(svgElement.id)) {
+            flipSVG(newSvgDocument);
+          }
           setTimeout(() => {
             applyListeners(newSvgDocument, true, isDeselect, svgObject);
           }, 500);
