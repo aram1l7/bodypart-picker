@@ -1,6 +1,11 @@
 window.onload = addStyleToSvg;
 
-const replacableBodyParts = ["bp-upper-limb-left-front", "bp-hand-left-palmar"];
+const replacableBodyParts = [
+  "bp-upper-limb-left-front",
+  "bp-hand-left-palmar",
+  "bp-lower-limb-left-front",
+  "bp-foot-left-dorsal",
+];
 
 const selectableBodyParts = [
   "chin",
@@ -139,6 +144,20 @@ const bodyPartHierarchy = {
     "bp-upper-arm-right-front",
     "bp-forearm-right-front",
   ],
+  "foot-left-dorsal": [
+    "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
+    "bp-ankle-medial-left-front",
+    "bp-ankle-lateral-left-front",
+    "bp-first-metatarsal-left-dorsal",
+    "bp-second-metatarsal-left-dorsal",
+    "bp-third-metatarsal-left-dorsal",
+    "bp-fourth-metatarsal-left-dorsal",
+    "bp-fifth-metatarsal-left-dorsal",
+    "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-second-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-third-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-fifth-toe-left-dorsal",
+  ],
 };
 
 function flipSVG(svgDoc) {
@@ -166,6 +185,7 @@ function flipSVG(svgDoc) {
 
 let isFront = true;
 let selectedParts = [];
+let navigationStack = [];
 
 function sendSelectedParts() {
   const message = JSON.stringify(selectedParts);
@@ -253,6 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     siemaInstance.next();
   };
+
+  document.getElementById("back-btn").onclick = navigateBack; // Attach navigateBack to the back button
 });
 
 function addStyleToSvg(isDeselect) {
@@ -367,6 +389,8 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
     svgElement.addEventListener("click", function (e) {
       const id = e.target.id || svgElement.id;
+
+
       if (selectedParts.includes(id)) {
         selectedParts = selectedParts.filter((part) => part !== id);
         if (secondLayer) {
@@ -407,6 +431,7 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
       if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
         let newSvgFile = `./assets/${svgElement.id}.svg`;
+        navigationStack.push(svgObject.data);
 
         if (replacableBodyParts.includes(svgElement.id)) {
           newSvgFile = `./assets/${svgElement.id.replace("left", "right")}.svg`;
@@ -474,6 +499,26 @@ function select(parts) {
   selectedParts = [...new Set([...selectedParts, ...parts])];
   sendSelectedParts();
   addStyleToSvg();
+}
+
+function navigateBack() {
+  if (navigationStack.length > 0) {
+    const previousSvgFile = navigationStack.pop();
+    const svgObject = isFront
+      ? document.getElementById("svg-front")
+      : document.getElementById("svg-back");
+    svgObject.data = previousSvgFile;
+
+    svgObject.onload = function () {
+      let svgDocument = svgObject.contentDocument;
+      applyListeners(svgDocument, true, false, svgObject);
+    };
+
+    if (svgObject.contentDocument) {
+      let svgDocument = svgObject.contentDocument;
+      applyListeners(svgDocument, true, false, svgObject);
+    }
+  }
 }
 
 function setLanguage(language) {
