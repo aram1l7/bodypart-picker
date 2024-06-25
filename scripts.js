@@ -62,6 +62,13 @@ const selectableBodyParts = [
   "armpit-left",
   "upper-arm-left-front",
   "forearm-left-front",
+  "thigh-lateral-left-front",
+  "thigh-medial-left-front",
+  "trochanter-left",
+  "knee-left",
+  "lower-leg-medial-left-front",
+  "lower-leg-tibial-anterior-left",
+  "lower-leg-lateral-left-front",
 ];
 
 const bodyPartHierarchy = {
@@ -143,6 +150,16 @@ const bodyPartHierarchy = {
     "bp-elbow-right-front",
     "bp-upper-arm-right-front",
     "bp-forearm-right-front",
+  ],
+  "bp-lower-limb-left-front": [
+    "bp-thigh-lateral-left-front",
+    "bp-thigh-medial-left-front",
+    "bp-trochanter-left",
+    "bp-knee-left",
+    "bp-lower-leg-medial-left-front",
+    "bp-lower-leg-tibial-anterior-left",
+    "bp-lower-leg-lateral-left-front",
+    "foot-left-dorsal",
   ],
   "foot-left-dorsal": [
     "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
@@ -533,6 +550,9 @@ function navigateBack() {
       let svgDocument = svgObject.contentDocument;
       if (replacableBodyParts.includes(svgElementId)) {
         flipSVG(svgDocument);
+      }
+      if (navigationStack.length === 0) {
+        transformAndScaleSvg(svgObject);
       }
       applyListeners(svgDocument, true, false, svgObject);
     };
