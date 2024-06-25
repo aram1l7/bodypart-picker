@@ -226,7 +226,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const siemaInstance = new Siema({
     perPage: 1,
     onChange: (e) => {
-      console.log(siemaInstance.currentSlide);
       if (siemaInstance.currentSlide === 0) {
         document.querySelector(".prev").style.backgroundColor = "white";
 
@@ -274,7 +273,10 @@ document.addEventListener("DOMContentLoaded", function () {
     siemaInstance.next();
   };
 
-  document.getElementById("back-btn").onclick = navigateBack; // Attach navigateBack to the back button
+  document.getElementById("back-btn").onclick = function () {
+    navigateBack();
+    sendSelectedParts();
+  };
 });
 
 function addStyleToSvg(isDeselect) {
@@ -313,8 +315,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
   if (svgElements.length === 0) {
     console.warn("No elements with class 'hover' found in the SVG document");
   }
-
-  console.log(svgElements, "elems");
 
   for (let i = 0; i < svgElements.length; i++) {
     const svgElement = svgElements[i];
@@ -390,7 +390,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
     svgElement.addEventListener("click", function (e) {
       const id = e.target.id || svgElement.id;
 
-
       if (selectedParts.includes(id)) {
         selectedParts = selectedParts.filter((part) => part !== id);
         if (secondLayer) {
@@ -431,18 +430,21 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
       if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
         let newSvgFile = `./assets/${svgElement.id}.svg`;
-        navigationStack.push(svgObject.data);
+        navigationStack.push(svgElement.id);
 
         if (replacableBodyParts.includes(svgElement.id)) {
           newSvgFile = `./assets/${svgElement.id.replace("left", "right")}.svg`;
         }
 
-        console.log("Loading new SVG file:", newSvgFile);
         svgObject.data = newSvgFile;
 
-        svgObject.onload = function () {
-          console.log("New SVG loaded:", newSvgFile);
+        console.log(navigationStack, "stack");
 
+        if (navigationStack.length > 0) {
+          document.getElementById("back-btn").style.display = "block";
+        }
+
+        svgObject.onload = function () {
           let newSvgDocument = svgObject.contentDocument;
           if (replacableBodyParts.includes(svgElement.id)) {
             flipSVG(newSvgDocument);
@@ -464,12 +466,9 @@ function addStyleFor(svgFilePrefix, isDeselect) {
     return;
   }
 
-  console.log("Initial SVG object found:", svgObject);
-
   transformAndScaleSvg(svgObject);
 
   svgObject.onload = function () {
-    console.log("Initial SVG loaded");
     let svgDocument = svgObject.contentDocument;
 
     applyListeners(svgDocument, false, isDeselect, svgObject);
@@ -503,14 +502,38 @@ function select(parts) {
 
 function navigateBack() {
   if (navigationStack.length > 0) {
-    const previousSvgFile = navigationStack.pop();
+    navigationStack.pop();
+
+    const svgElementId = navigationStack.at(-1);
+
+    let previousSvgFile = `./assets/${svgElementId}.svg`;
+
+    if (navigationStack.length === 0) {
+      document.getElementById("back-btn").style.display = "none";
+    }
+    if (replacableBodyParts.includes(svgElementId)) {
+      previousSvgFile = `./assets/${svgElementId.replace("left", "right")}.svg`;
+    }
+
     const svgObject = isFront
       ? document.getElementById("svg-front")
       : document.getElementById("svg-back");
+
+    if (navigationStack.length === 0) {
+      if (isFront) {
+        previousSvgFile = `./assets/whole-body-front.svg`;
+      } else {
+        previousSvgFile = `./assets/whole-body-back.svg`;
+      }
+    }
+
     svgObject.data = previousSvgFile;
 
     svgObject.onload = function () {
       let svgDocument = svgObject.contentDocument;
+      if (replacableBodyParts.includes(svgElementId)) {
+        flipSVG(svgDocument);
+      }
       applyListeners(svgDocument, true, false, svgObject);
     };
 

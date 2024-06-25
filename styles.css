@@ -84,3 +84,7 @@ main {
   border-radius: 100%;
   cursor: pointer;
 }
+
+#back-btn {
+  display: none;
+}
