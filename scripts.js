@@ -5,6 +5,11 @@ const replacableBodyParts = [
   "bp-hand-left-palmar",
   "bp-lower-limb-left-front",
   "bp-foot-left-dorsal",
+  "bp-great-toe-left-dorsal",
+  "bp-second-toe-left-dorsal",
+  "bp-third-toe-left-dorsal",
+  "bp-fourth-toe-left-dorsal",
+  "bp-fifth-toe-left-dorsal",
 ];
 
 const selectableBodyParts = [
@@ -69,11 +74,31 @@ const selectableBodyParts = [
   "lower-leg-medial-left-front",
   "lower-leg-tibial-anterior-left",
   "lower-leg-lateral-left-front",
+  "ankle-lateral-left-front",
+  "ankle-medial-left-front",
+  "fifth-metatarsal-left-dorsal",
+  "fourth-metatarsal-left-dorsal",
+  "third-metatarsal-left-dorsal",
+  "second-metatarsal-left-dorsal",
+  "first-metatarsal-left-dorsal",
+  "metatarsophalangeal-joint-great-toe-left-dorsal",
+  "metatarsophalangeal-joint-second-toe-left-dorsal",
+  "metatarsophalangeal-joint-third-toe-left-dorsal",
+  "metatarsophalangeal-joint-fourth-toe-left-dorsal",
+  "metatarsophalangeal-joint-fifth-toe-left-dorsal",
+  "proximal-phalanx-great-toe-left-dorsal",
+  "interphalangeal-joint-great-toe-left-dorsal",
+  "distal-phalanx-great-toe-left-dorsal",
+  "nail-of-great-toe-left",
+  "proximal-phalanx-second-toe-left-dorsal",
+  "nail-of-second-toe-left",
+  "proximal-interphalangeal-joint-second-toe-left-dorsal",
+  "middle-phalanx-second-toe-left-dorsal",
+  "distal-interphalangeal-joint-second-toe-left-dorsal",
 ];
 
 const bodyPartHierarchy = {
-  "head-front": [
-    "bp-head-front",
+  "bp-head-front": [
     "bp-nose",
     "bp-mouth",
     "bp-cheek-right",
@@ -89,15 +114,14 @@ const bodyPartHierarchy = {
     "bp-eye-left",
     "bp-ear-left",
   ],
-  thorax: [
+  "bp-thorax": [
     "bp-sternum",
     "bp-side-of-chest-right",
     "bp-breast-right",
     "bp-breast-left",
     "bp-side-of-chest-left",
   ],
-  "head-back": [
-    "bp-head-back",
+  "bp-head-back": [
     "bp-parietal-region",
     "bp-occipital-region",
     "bp-postauricular-region-left",
@@ -105,15 +129,14 @@ const bodyPartHierarchy = {
     "bp-postauricular-region-right",
     "bp-ear-right",
   ],
-  abdomen: [
+  "bp-abdomen": [
     "bp-upper-right-quadrant-adbomen",
     "bp-upper-left-quadrant-adbomen",
     "bp-lower-right-quadrant-adbomen",
     "bp-lower-left-quadrant-adbomen",
     "bp-umbilical-region",
   ],
-  "pelvic-region-front": [
-    "bp-pelvic-region-front",
+  "bp-pelvic-region-front": [
     "bp-hip-left",
     "bp-groin-left",
     "bp-hip-right",
@@ -129,8 +152,9 @@ const bodyPartHierarchy = {
     "bp-trochanter-right",
     "bp-lower-leg-lateral-right-front",
     "bp-lower-leg-medial-right-front",
+    "bp-foot-right-dorsal",
   ],
-  "foot-right-dorsal": [
+  "bp-foot-right-dorsal": [
     "bp-metatarsophalangeal-joint-great-toe-right-dorsal",
     "bp-ankle-medial-right-front",
     "bp-ankle-lateral-right-front",
@@ -159,9 +183,9 @@ const bodyPartHierarchy = {
     "bp-lower-leg-medial-left-front",
     "bp-lower-leg-tibial-anterior-left",
     "bp-lower-leg-lateral-left-front",
-    "foot-left-dorsal",
+    "bp-foot-left-dorsal",
   ],
-  "foot-left-dorsal": [
+  "bp-foot-left-dorsal": [
     "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
     "bp-ankle-medial-left-front",
     "bp-ankle-lateral-left-front",
@@ -174,6 +198,13 @@ const bodyPartHierarchy = {
     "bp-metatarsophalangeal-joint-second-toe-left-dorsal",
     "bp-metatarsophalangeal-joint-third-toe-left-dorsal",
     "bp-metatarsophalangeal-joint-fifth-toe-left-dorsal",
+    "bp-great-toe-left-dorsal",
+  ],
+  "bp-great-toe-left-dorsal": [
+    "bp-proximal-phalanx-great-toe-left-dorsal",
+    "bp-interphalangeal-joint-great-toe-left-dorsal",
+    "bp-distal-phalanx-great-toe-left-dorsal",
+    "bp-nail-of-great-toe-left",
   ],
 };
 
@@ -222,6 +253,7 @@ function updateSelection(id) {
   const parentPart = Object.keys(bodyPartHierarchy).find((parent) =>
     bodyPartHierarchy[parent].includes(id)
   );
+  console.log(parentPart, "parentPart");
   if (!parentPart) return;
 
   const siblings = bodyPartHierarchy[parentPart];
@@ -371,16 +403,32 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
       }
     });
 
+    const parentId = svgElement.parentNode?.parentNode?.id;
+
+    if (
+      selectedParts.includes(svgElement.id) ||
+      selectedParts.includes(parentId)
+    ) {
+      if (svgElement.nodeName === "path") {
+        svgElement.style.fill = "#ed2b2b";
+        svgElement.style.transition = "fill 0.3s ease";
+      } else {
+        for (let j = 0; j < children.length; j++) {
+          const svgItem = children[j];
+          svgItem.style.fill = "#ed2b2b";
+          svgItem.style.transition = "fill 0.3s ease";
+        }
+      }
+    }
+
     svgElement.addEventListener("mouseout", function () {
       svgElement.style.cursor = "default";
-
-      const parentId = svgElement.parentNode?.parentNode?.id;
 
       if (secondLayer) {
         if (svgElement.nodeName === "path") {
           svgElement.style.fill =
             selectedParts.includes(svgElement.id) ||
-            selectedParts.includes(parentId?.substring(3))
+            selectedParts.includes(parentId)
               ? "#ed2b2b"
               : "white";
         } else {
@@ -388,7 +436,7 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
             const svgItem = children[j];
             svgItem.style.fill =
               selectedParts.includes(svgElement.id) ||
-              selectedParts.includes(parentId?.substring(3))
+              selectedParts.includes(parentId)
                 ? "#ed2b2b"
                 : "white";
           }
@@ -417,8 +465,8 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
           }
         }
       } else {
-        selectedParts.push(id);
-        if (secondLayer) {
+        if (selectableBodyParts.includes(id.substring(3))) {
+          selectedParts.push(id);
           svgElement.style.fill = "#ed2b2b";
         } else {
           for (let j = 0; j < children.length; j++) {
@@ -454,8 +502,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
         }
 
         svgObject.data = newSvgFile;
-
-        console.log(navigationStack, "stack");
 
         if (navigationStack.length > 0) {
           document.getElementById("back-btn").style.display = "block";
