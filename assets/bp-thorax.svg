@@ -4,7 +4,7 @@
     <defs>
         <rect id="path-1" x="0" y="0" width="1080" height="1460"></rect>
     </defs>
-    <g id="thorax" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="bp-thorax" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <mask id="mask-2" fill="white">
             <use xlink:href="#path-1"></use>
         </mask>

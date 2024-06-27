@@ -12,89 +12,27 @@ const replacableBodyParts = [
   "bp-fifth-toe-left-dorsal",
 ];
 
-const selectableBodyParts = [
-  "chin",
-  "eye-right",
-  "eye-left",
-  "ear-left",
-  "ear-right",
-  "nose",
-  "tongue",
-  "neck-front",
-  "neck-back",
-  "frontal-scalp-region",
-  "cheek-left",
-  "cheek-right",
-  "forehead",
-  "temple-region-right",
-  "temple-region-left",
-  "mouth",
-  "postauricular-region-left",
-  "postauricular-region-right",
-  "parietal-region",
-  "occipital-region",
+const nonSelectableBodyParts = [
+  "lower-limb-right-front",
+  "lower-limb-left-front",
+  "head-front",
+  "head-back",
+  "pelvic-region-front",
+  "foot-left-dorsal",
+  "foot-right-dorsal",
+  "upper-limb-right-front",
+  "upper-limb-left-front",
   "thorax",
-  "breast-left",
-  "breast-right",
-  "side-of-chest-left",
-  "side-of-chest-right",
-  "upper-right-quadrant-adbomen",
-  "upper-left-quadrant-adbomen",
-  "lower-right-quadrant-adbomen",
-  "lower-left-quadrant-adbomen",
-  "umbilical-region",
-  "sternum",
-  "hip-left",
-  "groin-left",
-  "hip-right",
-  "groin-right",
-  "mons-pubis",
-  "genital-organ",
-  "lower-leg-tibial-anterior-right",
-  "thigh-medial-right-front",
-  "knee-right",
-  "thigh-lateral-right-front",
-  "trochanter-right",
-  "lower-leg-lateral-right-front",
-  "lower-leg-medial-right-front",
-  "shoulder-right-front",
-  "elbow-right-front",
-  "armpit-right",
-  "upper-arm-right-front",
-  "forearm-right-front",
-  "shoulder-left-front",
-  "elbow-left-front",
-  "armpit-left",
-  "upper-arm-left-front",
-  "forearm-left-front",
-  "thigh-lateral-left-front",
-  "thigh-medial-left-front",
-  "trochanter-left",
-  "knee-left",
-  "lower-leg-medial-left-front",
-  "lower-leg-tibial-anterior-left",
-  "lower-leg-lateral-left-front",
-  "ankle-lateral-left-front",
-  "ankle-medial-left-front",
-  "fifth-metatarsal-left-dorsal",
-  "fourth-metatarsal-left-dorsal",
-  "third-metatarsal-left-dorsal",
-  "second-metatarsal-left-dorsal",
-  "first-metatarsal-left-dorsal",
-  "metatarsophalangeal-joint-great-toe-left-dorsal",
-  "metatarsophalangeal-joint-second-toe-left-dorsal",
-  "metatarsophalangeal-joint-third-toe-left-dorsal",
-  "metatarsophalangeal-joint-fourth-toe-left-dorsal",
-  "metatarsophalangeal-joint-fifth-toe-left-dorsal",
-  "proximal-phalanx-great-toe-left-dorsal",
-  "interphalangeal-joint-great-toe-left-dorsal",
-  "distal-phalanx-great-toe-left-dorsal",
-  "nail-of-great-toe-left",
-  "proximal-phalanx-second-toe-left-dorsal",
-  "nail-of-second-toe-left",
-  "proximal-interphalangeal-joint-second-toe-left-dorsal",
-  "middle-phalanx-second-toe-left-dorsal",
-  "distal-interphalangeal-joint-second-toe-left-dorsal",
+  "abdomen",
+  "hand-right-palmar",
+  "hand-left-palmar",
+  "great-toe-left-dorsal",
+  "second-toe-left-dorsal",
+  "third-toe-left-dorsal",
+  "fourth-toe-left-dorsal",
+  "fifth-toe-left-dorsal",
+  "genital-organ-male",
+  "genital-organ-female",
 ];
 
 const bodyPartHierarchy = {
@@ -186,7 +124,6 @@ const bodyPartHierarchy = {
     "bp-foot-left-dorsal",
   ],
   "bp-foot-left-dorsal": [
-    "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
     "bp-ankle-medial-left-front",
     "bp-ankle-lateral-left-front",
     "bp-first-metatarsal-left-dorsal",
@@ -199,12 +136,44 @@ const bodyPartHierarchy = {
     "bp-metatarsophalangeal-joint-third-toe-left-dorsal",
     "bp-metatarsophalangeal-joint-fifth-toe-left-dorsal",
     "bp-great-toe-left-dorsal",
+    "bp-second-toe-left-dorsal",
+    "bp-third-toe-left-dorsal",
+    "bp-fourth-toe-left-dorsal",
+    "bp-fifth-toe-left-dorsal"
   ],
   "bp-great-toe-left-dorsal": [
     "bp-proximal-phalanx-great-toe-left-dorsal",
     "bp-interphalangeal-joint-great-toe-left-dorsal",
     "bp-distal-phalanx-great-toe-left-dorsal",
     "bp-nail-of-great-toe-left",
+  ],
+  "bp-second-toe-left-dorsal": [
+    "bp-proximal-phalanx-second-toe-left-dorsal",
+    "bp-nail-of-second-toe-left",
+    "bp-proximal-interphalangeal-joint-second-toe-left-dorsal",
+    "bp-middle-phalanx-second-toe-left-dorsal",
+    "bp-distal-interphalangeal-joint-second-toe-left-dorsal",
+  ],
+  "bp-third-toe-left-dorsal": [
+    "bp-proximal-phalanx-third-toe-left-dorsal",
+    "bp-nail-of-third-toe-left",
+    "bp-proximal-interphalangeal-joint-third-toe-left-dorsal",
+    "bp-middle-phalanx-third-toe-left-dorsal",
+    "bp-distal-interphalangeal-joint-third-toe-left-dorsal",
+  ],
+  "bp-fourth-toe-left-dorsal": [
+    "bp-proximal-phalanx-fourth-toe-left-dorsal",
+    "bp-nail-of-fourth-toe-left",
+    "bp-proximal-interphalangeal-joint-fourth-toe-left-dorsal",
+    "bp-middle-phalanx-fourth-toe-left-dorsal",
+    "bp-distal-interphalangeal-joint-fourth-toe-left-dorsal",
+  ],
+  "bp-fifth-toe-left-dorsal": [
+    "bp-proximal-phalanx-fifth-toe-left-dorsal",
+    "bp-nail-of-fifth-toe-left",
+    "bp-proximal-interphalangeal-joint-fifth-toe-left-dorsal",
+    "bp-middle-phalanx-fifth-toe-left-dorsal",
+    "bp-distal-interphalangeal-joint-fifth-toe-left-dorsal",
   ],
 };
 
@@ -465,7 +434,7 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
           }
         }
       } else {
-        if (selectableBodyParts.includes(id.substring(3))) {
+        if (!nonSelectableBodyParts.includes(id.substring(3))) {
           selectedParts.push(id);
           svgElement.style.fill = "#ed2b2b";
         } else {
@@ -493,7 +462,9 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
 
       sendSelectedParts();
 
-      if (!selectableBodyParts.includes(svgElement.id.substring(3))) {
+      console.log(selectedParts, 'selected');
+
+      if (nonSelectableBodyParts.includes(svgElement.id.substring(3))) {
         let newSvgFile = `./assets/${svgElement.id}.svg`;
         navigationStack.push(svgElement.id);
 
