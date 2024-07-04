@@ -10,6 +10,11 @@ const replacableBodyParts = [
   "bp-third-toe-left-dorsal",
   "bp-fourth-toe-left-dorsal",
   "bp-fifth-toe-left-dorsal",
+  "bp-thumb-left-palmar",
+  "bp-little-finger-left-palmar",
+  "bp-ring-finger-left-palmar",
+  "bp-middle-finger-left-palmar",
+  "bp-index-finger-left-palmar",
 ];
 
 const nonSelectableBodyParts = [
@@ -31,8 +36,23 @@ const nonSelectableBodyParts = [
   "third-toe-left-dorsal",
   "fourth-toe-left-dorsal",
   "fifth-toe-left-dorsal",
+  "great-toe-right-dorsal",
+  "second-toe-right-dorsal",
+  "third-toe-right-dorsal",
+  "fourth-toe-right-dorsal",
+  "fifth-toe-right-dorsal",
   "genital-organ-male",
   "genital-organ-female",
+  "thumb-right-palmar",
+  "little-finger-right-palmar",
+  "ring-finger-right-palmar",
+  "middle-finger-right-palmar",
+  "index-finger-right-palmar",
+  "thumb-left-palmar",
+  "little-finger-left-palmar",
+  "ring-finger-left-palmar",
+  "middle-finger-left-palmar",
+  "index-finger-left-palmar",
 ];
 
 const bodyPartHierarchy = {
@@ -68,10 +88,10 @@ const bodyPartHierarchy = {
     "bp-ear-right",
   ],
   "bp-abdomen": [
-    "bp-upper-right-quadrant-adbomen",
-    "bp-upper-left-quadrant-adbomen",
-    "bp-lower-right-quadrant-adbomen",
-    "bp-lower-left-quadrant-adbomen",
+    "bp-upper-left-quadrant-abdomen",
+    "bp-upper-right-quadrant-abdomen",
+    "bp-lower-right-quadrant-abdomen",
+    "bp-lower-left-quadrant-abdomen",
     "bp-umbilical-region",
   ],
   "bp-pelvic-region-front": [
@@ -92,27 +112,24 @@ const bodyPartHierarchy = {
     "bp-lower-leg-medial-right-front",
     "bp-foot-right-dorsal",
   ],
-  "bp-foot-right-dorsal": [
-    "bp-metatarsophalangeal-joint-great-toe-right-dorsal",
-    "bp-ankle-medial-right-front",
-    "bp-ankle-lateral-right-front",
-    "bp-first-metatarsal-right-dorsal",
-    "bp-second-metatarsal-right-dorsal",
-    "bp-third-metatarsal-right-dorsal",
-    "bp-fourth-metatarsal-right-dorsal",
-    "bp-fifth-metatarsal-right-dorsal",
-    "bp-metatarsophalangeal-joint-great-toe-right-dorsal",
-    "bp-metatarsophalangeal-joint-second-toe-right-dorsal",
-    "bp-metatarsophalangeal-joint-third-toe-right-dorsal",
-    "bp-metatarsophalangeal-joint-fifth-toe-right-dorsal",
-  ],
   "bp-upper-limb-right-front": [
     "bp-shoulder-right-front",
     "bp-armpit-right",
     "bp-elbow-right-front",
     "bp-upper-arm-right-front",
     "bp-forearm-right-front",
+    "bp-hand-right-palmar",
   ],
+
+  "bp-upper-limb-left-front": [
+    "bp-shoulder-left-front",
+    "bp-armpit-left",
+    "bp-elbow-left-front",
+    "bp-upper-arm-left-front",
+    "bp-forearm-left-front",
+    "bp-hand-left-palmar",
+  ],
+
   "bp-lower-limb-left-front": [
     "bp-thigh-lateral-left-front",
     "bp-thigh-medial-left-front",
@@ -123,23 +140,25 @@ const bodyPartHierarchy = {
     "bp-lower-leg-lateral-left-front",
     "bp-foot-left-dorsal",
   ],
+
   "bp-foot-left-dorsal": [
-    "bp-ankle-medial-left-front",
     "bp-ankle-lateral-left-front",
+    "bp-ankle-medial-left-front",
     "bp-first-metatarsal-left-dorsal",
     "bp-second-metatarsal-left-dorsal",
     "bp-third-metatarsal-left-dorsal",
     "bp-fourth-metatarsal-left-dorsal",
     "bp-fifth-metatarsal-left-dorsal",
-    "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
-    "bp-metatarsophalangeal-joint-second-toe-left-dorsal",
-    "bp-metatarsophalangeal-joint-third-toe-left-dorsal",
     "bp-metatarsophalangeal-joint-fifth-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-fourth-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-third-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-second-toe-left-dorsal",
+    "bp-metatarsophalangeal-joint-great-toe-left-dorsal",
     "bp-great-toe-left-dorsal",
     "bp-second-toe-left-dorsal",
     "bp-third-toe-left-dorsal",
     "bp-fourth-toe-left-dorsal",
-    "bp-fifth-toe-left-dorsal"
+    "bp-fifth-toe-left-dorsal",
   ],
   "bp-great-toe-left-dorsal": [
     "bp-proximal-phalanx-great-toe-left-dorsal",
@@ -153,6 +172,7 @@ const bodyPartHierarchy = {
     "bp-proximal-interphalangeal-joint-second-toe-left-dorsal",
     "bp-middle-phalanx-second-toe-left-dorsal",
     "bp-distal-interphalangeal-joint-second-toe-left-dorsal",
+    "bp-distal-phalanx-second-toe-left-dorsal",
   ],
   "bp-third-toe-left-dorsal": [
     "bp-proximal-phalanx-third-toe-left-dorsal",
@@ -160,6 +180,7 @@ const bodyPartHierarchy = {
     "bp-proximal-interphalangeal-joint-third-toe-left-dorsal",
     "bp-middle-phalanx-third-toe-left-dorsal",
     "bp-distal-interphalangeal-joint-third-toe-left-dorsal",
+    "bp-distal-phalanx-third-toe-left-dorsal",
   ],
   "bp-fourth-toe-left-dorsal": [
     "bp-proximal-phalanx-fourth-toe-left-dorsal",
@@ -167,6 +188,7 @@ const bodyPartHierarchy = {
     "bp-proximal-interphalangeal-joint-fourth-toe-left-dorsal",
     "bp-middle-phalanx-fourth-toe-left-dorsal",
     "bp-distal-interphalangeal-joint-fourth-toe-left-dorsal",
+    "bp-distal-phalanx-fourth-toe-left-dorsal",
   ],
   "bp-fifth-toe-left-dorsal": [
     "bp-proximal-phalanx-fifth-toe-left-dorsal",
@@ -174,7 +196,156 @@ const bodyPartHierarchy = {
     "bp-proximal-interphalangeal-joint-fifth-toe-left-dorsal",
     "bp-middle-phalanx-fifth-toe-left-dorsal",
     "bp-distal-interphalangeal-joint-fifth-toe-left-dorsal",
+    "bp-distal-phalanx-fifth-toe-left-dorsal",
   ],
+
+  "bp-foot-right-dorsal": [
+    "bp-ankle-lateral-right-front",
+    "bp-ankle-medial-right-front",
+    "bp-first-metatarsal-right-dorsal",
+    "bp-second-metatarsal-right-dorsal",
+    "bp-third-metatarsal-right-dorsal",
+    "bp-fifth-metatarsal-right-dorsal",
+    "bp-metatarsophalangeal-joint-great-toe-right-dorsal",
+    "bp-fourth-metatarsal-right-dorsal",
+    "bp-metatarsophalangeal-joint-second-toe-right-dorsal",
+    "bp-metatarsophalangeal-joint-third-toe-right-dorsal",
+    "bp-metatarsophalangeal-joint-fifth-toe-right-dorsal",
+    "bp-metatarsophalangeal-joint-fourth-toe-right-dorsal",
+    "bp-great-toe-right-dorsal",
+    "bp-distal-phalanx-second-toe-right-dorsal",
+    "bp-second-toe-right-dorsal",
+    "bp-distal-phalanx-third-toe-right-dorsal",
+    "bp-third-toe-right-dorsal",
+    "bp-distal-phalanx-fourth-toe-right-dorsal",
+    "bp-fourth-toe-right-dorsal",
+    "bp-distal-phalanx-fifth-toe-right-dorsal",
+    "bp-fifth-toe-right-dorsal",
+  ],
+  "bp-great-toe-right-dorsal": [
+    "bp-proximal-phalanx-great-toe-right-dorsal",
+    "bp-interphalangeal-joint-great-toe-right-dorsal",
+    "bp-distal-phalanx-great-toe-right-dorsal",
+    "bp-nail-of-great-toe-right",
+  ],
+  "bp-second-toe-right-dorsal": [
+    "bp-proximal-phalanx-second-toe-right-dorsal",
+    "bp-nail-of-second-toe-right",
+    "bp-proximal-interphalangeal-joint-second-toe-right-dorsal",
+    "bp-middle-phalanx-second-toe-right-dorsal",
+    "bp-distal-interphalangeal-joint-second-toe-right-dorsal",
+  ],
+  "bp-third-toe-right-dorsal": [
+    "bp-proximal-phalanx-third-toe-right-dorsal",
+    "bp-nail-of-third-toe-right",
+    "bp-proximal-interphalangeal-joint-third-toe-right-dorsal",
+    "bp-middle-phalanx-third-toe-right-dorsal",
+    "bp-distal-interphalangeal-joint-third-toe-right-dorsal",
+  ],
+  "bp-fourth-toe-right-dorsal": [
+    "bp-proximal-phalanx-fourth-toe-right-dorsal",
+    "bp-nail-of-fourth-toe-right",
+    "bp-proximal-interphalangeal-joint-fourth-toe-right-dorsal",
+    "bp-middle-phalanx-fourth-toe-right-dorsal",
+    "bp-distal-interphalangeal-joint-fourth-toe-right-dorsal",
+  ],
+  "bp-fifth-toe-right-dorsal": [
+    "bp-proximal-phalanx-fifth-toe-right-dorsal",
+    "bp-nail-of-fifth-toe-right",
+    "bp-proximal-interphalangeal-joint-fifth-toe-right-dorsal",
+    "bp-middle-phalanx-fifth-toe-right-dorsal",
+    "bp-distal-interphalangeal-joint-fifth-toe-right-dorsal",
+  ],
+
+  "bp-hand-left-palmar": [
+    "bp-palm-left",
+    "bp-wrist-left-palmar",
+    "bp-little-finger-left-palmar",
+    "bp-ring-finger-left-palmar",
+    "bp-middle-finger-left-palmar",
+    "bp-index-finger-left-palmar",
+    "bp-thumb-left-palmar",
+  ],
+
+  "bp-thumb-left-palmar": [
+    "bp-proximal-phalanx-thumb-left-palmar",
+    "bp-interphalangeal-joint-thumb-left-palmar",
+    "bp-distal-phalanx-thumb-left-palmar",
+  ],
+  "bp-little-finger-left-palmar": [
+    "bp-proximal-phalanx-little-finger-left-palmar",
+    "bp-proximal-interphalangeal-joint-little-finger-left-palmar",
+    "bp-middle-phalanx-little-finger-left-palmar",
+    "bp-distal-interphalangeal-joint-little-finger-left-palmar",
+    "bp-distal-phalanx-little-finger-left-palmar",
+  ],
+  "bp-ring-finger-left-palmar": [
+    "bp-proximal-phalanx-ring-finger-left-palmar",
+    "bp-proximal-interphalangeal-joint-ring-finger-left-palmar",
+    "bp-middle-phalanx-ring-finger-left-palmar",
+    "bp-distal-interphalangeal-joint-ring-finger-left-palmar",
+    "bp-distal-phalanx-ring-finger-left-palmar",
+  ],
+  "bp-middle-finger-left-palmar": [
+    "bp-proximal-phalanx-middle-finger-left-palmar",
+    "bp-proximal-interphalangeal-joint-middle-finger-left-palmar",
+    "bp-middle-phalanx-middle-finger-left-palmar",
+    "bp-distal-interphalangeal-joint-middle-finger-left-palmar",
+    "bp-distal-phalanx-middle-finger-left-palmar",
+  ],
+  "bp-index-finger-left-palmar": [
+    "bp-proximal-phalanx-index-finger-left-palmar",
+    "bp-proximal-interphalangeal-joint-index-finger-left-palmar",
+    "bp-middle-phalanx-index-finger-left-palmar",
+    "bp-distal-interphalangeal-joint-index-finger-left-palmar",
+    "bp-distal-phalanx-index-finger-left-palmar",
+  ],
+
+  "bp-hand-right-palmar": [
+    "bp-palm-right",
+    "bp-wrist-right-palmar",
+    "bp-little-finger-right-palmar",
+    "bp-ring-finger-right-palmar",
+    "bp-middle-finger-right-palmar",
+    "bp-index-finger-right-palmar",
+    "bp-thumb-right-palmar",
+  ],
+
+
+  "bp-thumb-right-palmar": [
+    "bp-proximal-phalanx-thumb-right-palmar",
+    "bp-interphalangeal-joint-thumb-right-palmar",
+    "bp-distal-phalanx-thumb-right-palmar",
+  ],
+  "bp-little-finger-right-palmar": [
+    "bp-proximal-phalanx-little-finger-right-palmar",
+    "bp-proximal-interphalangeal-joint-little-finger-right-palmar",
+    "bp-middle-phalanx-little-finger-right-palmar",
+    "bp-distal-interphalangeal-joint-little-finger-right-palmar",
+    "bp-distal-phalanx-little-finger-right-palmar",
+  ],
+  "bp-ring-finger-right-palmar": [
+    "bp-proximal-phalanx-ring-finger-right-palmar",
+    "bp-proximal-interphalangeal-joint-ring-finger-right-palmar",
+    "bp-middle-phalanx-ring-finger-right-palmar",
+    "bp-distal-interphalangeal-joint-ring-finger-right-palmar",
+    "bp-distal-phalanx-ring-finger-right-palmar",
+  ],
+  "bp-middle-finger-right-palmar": [
+    "bp-proximal-phalanx-middle-finger-right-palmar",
+    "bp-proximal-interphalangeal-joint-middle-finger-right-palmar",
+    "bp-middle-phalanx-middle-finger-right-palmar",
+    "bp-distal-interphalangeal-joint-middle-finger-right-palmar",
+    "bp-distal-phalanx-middle-finger-right-palmar",
+  ],
+  "bp-index-finger-right-palmar": [
+    "bp-proximal-phalanx-index-finger-right-palmar",
+    "bp-proximal-interphalangeal-joint-index-finger-right-palmar",
+    "bp-middle-phalanx-index-finger-right-palmar",
+    "bp-distal-interphalangeal-joint-index-finger-right-palmar",
+    "bp-distal-phalanx-index-finger-right-palmar",
+  ],
+
 };
 
 function flipSVG(svgDoc) {
@@ -222,7 +393,6 @@ function updateSelection(id) {
   const parentPart = Object.keys(bodyPartHierarchy).find((parent) =>
     bodyPartHierarchy[parent].includes(id)
   );
-  console.log(parentPart, "parentPart");
   if (!parentPart) return;
 
   const siblings = bodyPartHierarchy[parentPart];
@@ -238,6 +408,7 @@ function updateSelection(id) {
   } else {
     selectedParts = selectedParts.filter((part) => part !== parentPart);
   }
+  console.log(selectedParts, "selectedparts");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -461,8 +632,6 @@ function applyListeners(svgDocument, secondLayer, isDeselect, svgObject) {
       }
 
       sendSelectedParts();
-
-      console.log(selectedParts, 'selected');
 
       if (nonSelectableBodyParts.includes(svgElement.id.substring(3))) {
         let newSvgFile = `./assets/${svgElement.id}.svg`;
